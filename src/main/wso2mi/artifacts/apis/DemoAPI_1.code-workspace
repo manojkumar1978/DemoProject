@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../../.."
+		},
+		{
+			"name": "DemoProject-1",
+			"path": "../../../../../../../Github_Manoj/DemoProject-1"
+		},
+		{
+			"name": "DemoProject",
+			"path": "../../../../../../../NewGitFolder/DemoProject"
+		}
+	],
+	"settings": {}
+}

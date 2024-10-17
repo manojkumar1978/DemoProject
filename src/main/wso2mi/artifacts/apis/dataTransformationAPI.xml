@@ -1,0 +1,28 @@
+<api xmlns="http://ws.apache.org/ns/synapse" name="dataTransformationAPI" context="/">
+    <resource methods="POST" uri-template="/transform">
+        <inSequence>
+            <property name="messageType" value="application/xml" scope="axis2"/>
+            <property name="contentType" value="application/xml" scope="axis2"/>
+            <payloadFactory media-type="json" template-type="default">
+                <format>{
+                    "Employees": [
+                    #foreach($employee in $body/Employees/Employee)
+                    {
+                    "Employee id": $employee/id/text(),
+                    "Employee Name": $employee/name/text(),
+                    "Employee Age": $employee/age/text(),
+                    "Employee Location": $employee/location/text(),
+                    "Employee Email": $employee/email/text()
+                    }#if($foreach.hasNext),#end
+                    #end
+                    ]
+                    }</format>
+                <args>
+                </args>
+            </payloadFactory>
+            <property name="messageType" value="application/json" scope="axis2"/>
+            <property name="contentType" value="application/json" scope="axis2"/>
+            <respond/>
+        </inSequence>
+    </resource>
+</api>
