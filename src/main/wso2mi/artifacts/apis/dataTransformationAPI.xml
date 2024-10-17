@@ -1,28 +1,41 @@
-<api xmlns="http://ws.apache.org/ns/synapse" name="dataTransformationAPI" context="/">
+<api context="/api" name="dataTransformationAPI" xmlns="http://ws.apache.org/ns/synapse">
     <resource methods="POST" uri-template="/transform">
         <inSequence>
-            <property name="messageType" value="application/xml" scope="axis2"/>
-            <property name="contentType" value="application/xml" scope="axis2"/>
-            <payloadFactory media-type="json" template-type="default">
-                <format>{
-                    "Employees": [
-                    #foreach($employee in $body/Employees/Employee)
-                    {
-                    "Employee id": $employee/id/text(),
-                    "Employee Name": $employee/name/text(),
-                    "Employee Age": $employee/age/text(),
-                    "Employee Location": $employee/location/text(),
-                    "Employee Email": $employee/email/text()
-                    }#if($foreach.hasNext),#end
-                    #end
-                    ]
-                    }</format>
-                <args>
-                </args>
-            </payloadFactory>
-            <property name="messageType" value="application/json" scope="axis2"/>
-            <property name="contentType" value="application/json" scope="axis2"/>
+            <!-- PayloadFactory to create a custom payload for each employee -->
+            <property name="messageType" scope="axis2" type="STRING" value="application/xml"/>
+            <property name="contentType" scope="axis2" type="STRING" value="application/xml"/>
+            <foreach expression="//Employees/Employee">
+                <sequence>
+                    <log>
+                        <property expression="//id" name="Current Employee"/>
+                    </log>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <EmployeeDetails xmlns="">
+                                <EmployeeId>$1</EmployeeId>
+                                <EmployeeName>$2</EmployeeName>
+                                <EmployeeAge>$3</EmployeeAge>
+                                <EmployeeLocation>$4</EmployeeLocation>
+                                <EmployeeEmail>$5</EmployeeEmail>
+                            </EmployeeDetails>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="//id"/>
+                            <arg evaluator="xml" expression="//name"/>
+                            <arg evaluator="xml" expression="//age"/>
+                            <arg evaluator="xml" expression="//location"/>
+                            <arg evaluator="xml" expression="//email"/>
+                        </args>
+                    </payloadFactory>
+                    <!-- You can add further processing logic here, like sending to an endpoint -->
+                </sequence>
+            </foreach>
+            <log level="full"/>
+            <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+            <property name="contentType" scope="axis2" type="STRING" value="application/json"/>
             <respond/>
         </inSequence>
+        <outSequence/>
+        <faultSequence/>
     </resource>
 </api>
