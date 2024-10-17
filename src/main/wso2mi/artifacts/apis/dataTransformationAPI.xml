@@ -6,9 +6,7 @@
             <property name="contentType" scope="axis2" type="STRING" value="application/xml"/>
             <foreach expression="//Employees/Employee">
                 <sequence>
-                    <log>
-                        <property expression="//id" name="Current Employee"/>
-                    </log>
+            
                     <payloadFactory media-type="xml">
                         <format>
                             <EmployeeDetails xmlns="">
@@ -30,7 +28,7 @@
                     <!-- You can add further processing logic here, like sending to an endpoint -->
                 </sequence>
             </foreach>
-            <log level="full"/>
+   
             <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
             <property name="contentType" scope="axis2" type="STRING" value="application/json"/>
             <respond/>
