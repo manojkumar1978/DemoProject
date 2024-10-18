@@ -7,7 +7,6 @@
             </log>
             <foreach expression="json-eval($.Employees)">
                 <sequence>
-                   
                     <payloadFactory media-type="json">
                         <format>{
       "Employeeid": "$1",
@@ -29,10 +28,60 @@
             </foreach>
             <!-- You can add further processing logic here, like sending to an endpoint -->
             <log level="full"/>
-            
-             <property name="messageType" value="application/xml" scope="axis2"/>
-             <log level="full"/>
+            <property name="messageType" scope="axis2" type="STRING" value="application/xml"/>
+            <log level="full"/>
             <respond/>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+    <resource methods="POST" uri-template="/{employee_id}">
+        <inSequence>
+            <!-- Handle unknown categories -->
+            <!-- Create a payload for the order -->
+            <log level="full">
+                <property expression="json-eval($)" name="Incoming Message"/>
+                <property expression="get-property('uri.var.employee_id')" name="Employee ID"/>
+            </log>
+            <property expression="get-property('uri.var.employee_id')" name="employeeId" scope="default" type="STRING"/>
+            <property expression="json-eval($.category)" name="category" scope="default" type="STRING"/>
+            <filter xpath="$ctx:category='order'">
+                <then>
+                    <payloadFactory media-type="json">
+                        <format>
+                            {
+                                "message": "Order created successfully.",
+                                "url": "http://orderProcessingService/$3",
+                                "orderId": "$1",
+                                "amount": "$2"
+                            }
+                        </format>
+                        <args>
+                            <arg evaluator="json" expression="$.orderId"/>
+                            <arg evaluator="json" expression="$.amount"/>
+                            <arg evaluator="xml" expression="$ctx:employeeId"/>
+                        </args>
+                    </payloadFactory>
+                    <log level="custom">
+                        <property expression="json-eval($)" name="Response Payload"/>
+                    </log>
+                    <respond/>
+                </then>
+                <else>
+                    <payloadFactory media-type="json">
+                        <format>
+                            {
+                                "message": "Invalid category. Please provide 'order'."
+                            }
+                        </format>
+                        <args/>
+                    </payloadFactory>
+                    <log level="custom">
+                        <property expression="json-eval($)" name="Invalid Category"/>
+                    </log>
+                    <respond/>
+                </else>
+            </filter>
         </inSequence>
         <outSequence/>
         <faultSequence/>
